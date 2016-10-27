@@ -1,0 +1,102 @@
+问题，开始时，没有用回调，是阻塞方式。回调是如何加入的？
+//==========================================
+//因为node是单线程的，在一个线程中响应所有外部请求。如果start阻塞了线程，则其他请求不能被响应。
+
+function start() {
+  console.log("Request handler 'start' was called.");
+
+  function sleep(milliSeconds) {
+    var startTime = new Date().getTime();
+    while (new Date().getTime() < startTime + milliSeconds);
+  }
+  //停10秒，阻塞
+  sleep(10000);
+  return "Hello Start";
+}
+
+function upload() {
+  console.log("Request handler 'upload' was called.");
+  return "Hello Upload";
+}
+
+exports.start = start;
+exports.upload = upload;
+//===========================
+//这里start和upload都返回值
+var exec = require("child_process").exec;
+
+function start() {
+  console.log("Request handler 'start' was called.");
+  var content = "empty";
+
+  exec("ls -lah", function (error, stdout, stderr) {
+    content = stdout;
+  });
+
+  return content;
+}
+
+function upload() {
+  console.log("Request handler 'upload' was called.");
+  return "Hello Upload";
+}
+
+exports.start = start;
+exports.upload = upload;
+//==========================================
+// 把response做为参数传递，然后把response放到回调函数里，这样，只有回调执行，才会有输出。
+var http = require("http");
+var url = require("url");
+
+function start(route, handle) {
+  function onRequest(request, response) {
+    var pathname = url.parse(request.url).pathname;
+    console.log("Request for " + pathname + " received.");
+    //使用response参数
+    route(handle, pathname, response);
+  }
+
+  http.createServer(onRequest).listen(8888);
+  console.log("Server has started.");
+}
+
+exports.start = start;
+//===============================================
+// handle里response做参数
+function route(handle, pathname, response) {
+  console.log("About to route a request for " + pathname);
+  if (typeof handle[pathname] === 'function') {
+    handle[pathname](response);
+  } else {
+    console.log("No request handler found for " + pathname);
+    response.writeHead(404, {"Content-Type": "text/plain"});
+    response.write("404 Not found");
+    response.end();
+  }
+}
+
+exports.route = route;
+//================================================
+var exec = require("child_process").exec;
+
+function start(response) {
+  console.log("Request handler 'start' was called.");
+//这里没有返回content了，直接向response里写。后面没有代码，也就不会被跳过去。
+  exec("ls -lah", function (error, stdout, stderr) {
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write(stdout);
+    response.end();
+  });
+}
+
+function upload(response) {
+  console.log("Request handler 'upload' was called.");
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.write("Hello Upload");
+  response.end();
+}
+
+exports.start = start;
+exports.upload = upload;
+
+//开始没用回调函数，用sleep延时，阻塞方式使upload不被执行。然后用回调函数，但后面有return，使回调的结果无处去。
