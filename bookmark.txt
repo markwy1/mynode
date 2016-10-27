@@ -1,0 +1,2 @@
+bookmark
+接下来，我们把处理文件上传以及重命名的操作放到一起，如下requestHandlers.js所示：

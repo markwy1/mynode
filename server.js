@@ -10,31 +10,11 @@ var url = require("url");
 
 function start(route, handle) {
   function onRequest(request, response) {
-    console.log(' ========== Response Begin =========== ')
-    var postData ="";
+    //var postData ="";
     var pathname = url.parse(request.url).pathname;
-    //var querystr = url.parse(request.url).query;
-    //var queryid = querystring(request.url)["id"];
     console.log("Request for " + pathname + " received.");
-    request.setEncoding("utf8");
-    request.addListener("data", function(postDataChunk){
-      postData += postDataChunk;
-      console.log("received POST data chunk'" + postDataChunk + "'.");
-    });
-    request.addListener("end", function(){
-      route(handle, pathname, response, postData);
-    });
-    //console.log(url.parse(request.url));
-    //response.writeHead(200, {"Content-Type": "text/plain"});
-    //console.log(handle);
-    // 根据pathname，选择处理函数
-    //var content = route(handle, pathname, response);
-    //console.log(content);
-    //response.write(content);
-    //response.write('\n' + querystr);
-    //response.write('\n the id is:' + queryid);
-    //response.end();
-    console.log('       ==== Response End ====       ')
+    route(handle, pathname, response, request);
+    };
   }
   //如何定义局部变量？http是全局的。这里onRequest不是回调?
   // listen就构造了一个消息监听循环？

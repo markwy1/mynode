@@ -34,3 +34,12 @@ git add *
 git commit
 
 出现错误。
+
+=======================
+提交本地修改到github库，注意name和email两个都要输入。成功。
+1.git config user.name "someone"
+3.git config user.email "someone@someplace.com"
+4.git add *
+5.git commit -m "some init msg"
+然后使用push更新github远程库
+git push
