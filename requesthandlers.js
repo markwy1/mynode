@@ -3,13 +3,15 @@
 // Date: 2016.10.24
 // Subject: nodejs exec, requireHandlers
 // example is from: http://nodebeginner.org/index-zh-cn.html
-//var exec = require("child_process").exec;
+// history:
+// 10.28 using formidable to upload image, using
 
+// var exec = require("child_process").exec;
 var querystring = require("querystring");
 var fs = require("fs");
 var formidable = require("formidable");
 
-function start(response, postData) {
+function start(response) {
   console.log("Request handler 'start' was called.");
   var body = '<html>'+
     '<head>'+
@@ -31,7 +33,7 @@ function start(response, postData) {
 }
 
 
-function upload(response, postData) {
+function upload(response, request) {
   console.log("Request handler 'upload' was called.");
   var form = new formidable.IncomingForm();
   console.log("about to parse");
